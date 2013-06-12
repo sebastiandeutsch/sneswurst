@@ -66,7 +66,7 @@ VBlank:
     pha
 
     lda $0000
-    inc a
+   ; inc a
     sta $0000
     sta $210D
     stz $210D
@@ -88,7 +88,7 @@ Start:
     InitSNES    ; Clear registers, etc.
 
     ; Load Palette for our tiles
-    LoadPalette BG_Palette, 0, 4
+    LoadPalette BG_Palette, 0, 16*4
 
     ; Load Tile data to VRAM
     LoadBlockToVRAM Tiles_9, $0000, 7*64	; 2 tiles, 2bpp, = 32 bytes
@@ -107,24 +107,7 @@ FillTileMap:
 
     lda #$00
     sta $2118
-    lda #$04
-    sta $2118
-    lda #$08
-    sta $2118
-    lda #$04
-    sta $2118
-    lda #$0C
-    sta $2118
-    lda #$04
-    sta $2118
-    lda #$10
-    sta $2118
-    lda #$14
-    sta $2118
-    lda #$18
-    sta $2118
-    lda #$01
-    sta $2118
+
 
     pla
     inc a
@@ -155,7 +138,7 @@ Infinity:
 ; Out: None
 ;----------------------------------------------------------------------------
 SetupVideo:
-    lda #$00
+    lda #$04
     sta $2105           ; Set Video mode 0, 8x8 tiles, 4 color BG1/BG2/BG3/BG4
 
     lda #$04            ; Set BG1's Tile Map offset to $0400 (Word address)
