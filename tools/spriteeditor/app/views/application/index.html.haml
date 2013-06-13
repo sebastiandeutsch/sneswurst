@@ -1,0 +1,9 @@
+.controls
+  Choose a file from the file system
+  %input#input-file.pure-button{ type: 'file' }
+.canvas
+  %canvas#src-canvas{ :width => '512', :height => '512' }
+  %canvas#dst-canvas{ :width => '512', :height => '512' }
+.test
+  %a#download{ :href => "#", :download => "tile.pic" }
+    Download It
