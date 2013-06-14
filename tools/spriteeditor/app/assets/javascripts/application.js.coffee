@@ -122,7 +122,6 @@ jQuery ($) ->
         # construct 4 bitplanes
         for x in [0..img.width-1]
           value = outputIndexBuffer[img.width * y + x]
-          console.log value
           v = []
           v[0] = ((value >> 3) & 0x01) << (8-x-1)
           v[1] = ((value >> 2) & 0x01) << (8-x-1)
@@ -138,10 +137,10 @@ jQuery ($) ->
         rows[y] = [row[0], row[1], row[2], row[3]]
 
       for y in [0..img.height-1]
-        outputBuffer[y*2  ]              = rows[y][0]
-        outputBuffer[y*2+1]              = rows[y][1]
-        outputBuffer[y*2+img.height*2]   = rows[y][2]
-        outputBuffer[y*2+img.height*2+1] = rows[y][3]
+        outputBuffer[y*2  ]              = rows[y][3]
+        outputBuffer[y*2+1]              = rows[y][2]
+        outputBuffer[y*2+img.height*2]   = rows[y][1]
+        outputBuffer[y*2+img.height*2+1] = rows[y][0]
 
 
       # download blog
@@ -151,5 +150,33 @@ jQuery ($) ->
       blobURL = window.URL.createObjectURL(blob)
 
       $("a#download").attr('href', blobURL)
+
+      arrayColorBuffer = new ArrayBuffer(reducedColorList.length * 2)
+      outputColorBuffer = new Uint8Array(arrayColorBuffer);
+
+      # generate palette
+      console.log reducedColorList
+      for i in [0..reducedColorList.length-1]
+        color = reducedColorList[i]
+        nr = Math.floor(color.r / 8)
+        ng = Math.floor(color.g / 8)
+        nb = Math.floor(color.b / 8)
+
+        console.log "#{nr} #{ng} #{nb}"
+
+        color = nb * 1024 + ng * 32 + nr
+
+        color_low_byte  =  color       & 0xff
+        color_high_byte = (color >> 8) & 0xff
+
+        outputColorBuffer[i*2]   = color_low_byte
+        outputColorBuffer[i*2+1] = color_high_byte
+
+        console.log("color: #{color} lh: #{color_high_byte} #{color_low_byte}")
+
+      colorBlob = new Blob([arrayColorBuffer]);
+      colorBlobURL = window.URL.createObjectURL(colorBlob)
+
+      $("a#download-palette").attr('href', colorBlobURL)
     return
   return
