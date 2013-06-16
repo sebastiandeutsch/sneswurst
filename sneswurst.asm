@@ -65,9 +65,9 @@ VBlank:
 
     pha
 
-    lda $0000
-   ; inc a
-    sta $0000
+    lda $0004
+    inc a
+    sta $0004
     sta $210D
     stz $210D
 
@@ -91,28 +91,48 @@ Start:
     LoadPalette BG_Palette, 0, 16
 
     ; Load Tile data to VRAM
-    LoadBlockToVRAM Tiles_9, $0000, 32*1	; 2 tiles, 2bpp, = 32 bytes
+    ; LoadBlockToVRAM Tiles_9, $0000, 32*1	; 2 tiles, 2bpp, = 32 bytes
+    LoadBlockToVRAM Tiles_9, $0000, 1024*8
 
     lda #$00
     sta $2115
-    ldx #$0400
+    ldx #$4000
     stx $2116
 
 
-    ; let's write it 100 times
-    lda #100
+    ; let's write it 4 times
+    lda #(128 / 8)
 
-FillTileMap:
+FillTileMapV:
+    pha
+    lda #(128 / 8)
+FillTileMapH:
     pha
 
-    lda #$00
+    lda $0000
     sta $2118
-
+    inc a
+    sta $0000
 
     pla
-    inc a
-    cmp #10
-    bne FillTileMap
+
+    dec a
+    cmp #0
+    bne FillTileMapH
+
+    lda #(32 - 128 / 8)
+ClearTileMapH:
+    stz $2118
+    dec a
+    cmp #0
+    bne ClearTileMapH
+
+    pla
+    dec a
+    cmp #0
+    bne FillTileMapV
+
+
 
 ;    lda #$03
 ;    sta $210D
@@ -141,7 +161,7 @@ SetupVideo:
     lda #$01
     sta $2105           ; Set Video mode 0, 8x8 tiles, 4 color BG1/BG2/BG3/BG4
 
-    lda #$04            ; Set BG1's Tile Map offset to $0400 (Word address)
+    lda #$40            ; Set BG1's Tile Map offset to $4000 (Word address)
     sta $2107           ; And the Tile Map size to 32x32
 
     stz $210B           ; Set BG1's Character VRAM offset to $0000 (word address)

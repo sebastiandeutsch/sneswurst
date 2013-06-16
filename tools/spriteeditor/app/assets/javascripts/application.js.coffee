@@ -111,36 +111,41 @@ jQuery ($) ->
       arrayBuffer = new ArrayBuffer(img.width * img.height / 8 * 4)
       outputBuffer = new Uint8Array(arrayBuffer);
 
-      rows = []
-      for y in [0..img.height-1]
-        row = []
-        row[0] = 0
-        row[1] = 0
-        row[2] = 0
-        row[3] = 0
+      tileWidth = 8
+      tileHeight = 8
+      for tx in [0..Math.floor(img.width / 8)-1]
+        for ty in [0..Math.floor(img.height / 8)-1]
+          rows = []
+          for y in [0..tileHeight-1]
+            row = []
+            row[0] = 0
+            row[1] = 0
+            row[2] = 0
+            row[3] = 0
 
-        # construct 4 bitplanes
-        for x in [0..img.width-1]
-          value = outputIndexBuffer[img.width * y + x]
-          v = []
-          v[0] = ((value >> 3) & 0x01) << (8-x-1)
-          v[1] = ((value >> 2) & 0x01) << (8-x-1)
-          v[2] = ((value >> 1) & 0x01) << (8-x-1)
-          v[3] = (value        & 0x01) << (8-x-1)
+            # construct 4 bitplanes
+            for x in [0..tileWidth-1]
+              value = outputIndexBuffer[img.width * (y+ty*tileHeight) + (x+tx*tileWidth)]
+              v = []
+              v[0] = ((value >> 3) & 0x01) << (8-x-1)
+              v[1] = ((value >> 2) & 0x01) << (8-x-1)
+              v[2] = ((value >> 1) & 0x01) << (8-x-1)
+              v[3] = (value        & 0x01) << (8-x-1)
 
-          row[0] = row[0] | v[0]
-          row[1] = row[1] | v[1]
-          row[2] = row[2] | v[2]
-          row[3] = row[3] | v[3]
+              row[0] = row[0] | v[0]
+              row[1] = row[1] | v[1]
+              row[2] = row[2] | v[2]
+              row[3] = row[3] | v[3]
 
-        # save them
-        rows[y] = [row[0], row[1], row[2], row[3]]
+            # save them
+            rows[y] = [row[0], row[1], row[2], row[3]]
 
-      for y in [0..img.height-1]
-        outputBuffer[y*2  ]              = rows[y][3]
-        outputBuffer[y*2+1]              = rows[y][2]
-        outputBuffer[y*2+img.height*2]   = rows[y][1]
-        outputBuffer[y*2+img.height*2+1] = rows[y][0]
+          for y in [0..tileHeight-1]
+            indexInBuffer = (tx + (ty * Math.floor(img.width / 8))) * tileHeight * 4
+            outputBuffer[indexInBuffer + y*2  ]              = rows[y][3]
+            outputBuffer[indexInBuffer + y*2+1]              = rows[y][2]
+            outputBuffer[indexInBuffer + y*2+tileHeight*2]   = rows[y][1]
+            outputBuffer[indexInBuffer + y*2+tileHeight*2+1] = rows[y][0]
 
 
       # download blog
