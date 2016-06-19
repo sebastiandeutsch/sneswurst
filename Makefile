@@ -3,7 +3,7 @@ LINK = wlalink
 
 sneswurst: sneswurst.o
 		${LINK} -vr sneswurst.link sneswurst.smc
-		open sneswurst.smc
+		~/development/snes/emu/bsnes+.app/Contents/MacOS/bsnes sneswurst.smc
 
 sneswurst.o: sneswurst.asm header.inc InitSNES.asm LoadGraphics.asm tiles.inc
 		${ASM} -vo sneswurst.asm

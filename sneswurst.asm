@@ -91,52 +91,94 @@ Start:
     LoadPalette BG_Palette, 0, 16
 
     ; Load Tile data to VRAM
-    ; LoadBlockToVRAM Tiles_9, $0000, 32*1	; 2 tiles, 2bpp, = 32 bytes
-    LoadBlockToVRAM Tiles_9, $0000, 1024*8
+    ; LoadBlockToVRAM Tiles, $0000, 32*1	; 2 tiles, 2bpp, = 32 bytes
+    LoadBlockToVRAM Tiles, $0000, 16128
 
-    lda #$00
+    rep #$30      ; mem/A = 8 bit, X/Y = 16 bit
+    sep #$20
+
+    lda #%10000000
     sta $2115
-    ldx #$4000
+    ldx #$6000
     stx $2116
 
+    rep #$30      ; mem/A = 16 bit, X/Y = 16 bit
 
-    ; let's write it 4 times
-    lda #(128 / 8)
-
+    lda #0
+    ldy #(128 / 8)
 FillTileMapV:
-    pha
-    lda #(128 / 8)
+    ldx #(144 / 8)
 FillTileMapH:
-    pha
-
-    lda $0000
     sta $2118
-    inc a
-    sta $0000
 
+
+    phx
+    pha
+    asl a
+    tax
     pla
+    sta $0000, x
+    plx
 
-    dec a
-    cmp #0
+
+    inc a
+
+    dex
+    cpx #0
     bne FillTileMapH
 
-    lda #(32 - 128 / 8)
+    ldx #((256-144) / 8)
 ClearTileMapH:
     stz $2118
-    dec a
-    cmp #0
+    dex
+    cpx #0
     bne ClearTileMapH
 
-    pla
-    dec a
-    cmp #0
+    dey
+    cpy #0
     bne FillTileMapV
 
+    rep #$30      ; mem/A = 8 bit, X/Y = 16 bit
+    sep #$20
 
 
-;    lda #$03
-;    sta $210D
-;    stz $210D
+;    ; let's write it 4 times
+;    lda #(224 / 8)
+;
+;FillTileMapV:
+;    pha
+;    lda #(144 / 8)
+;FillTileMapH:
+;    pha
+;
+;    lda $0000
+;    sta $2118
+;    inc a
+;    sta $0000
+;
+;    pla
+;
+;    dec a
+;    cmp #0
+;    bne FillTileMapH
+;
+;    lda #(32 - 128 / 8)
+;ClearTileMapH:
+;    stz $2118
+;    dec a
+;    cmp #0
+;    bne ClearTileMapH
+;
+;    pla
+;    dec a
+;    cmp #0
+;    bne FillTileMapV
+;
+;
+;
+;;    lda #$03
+;;    sta $210D
+;;    stz $210D
 
 
     ; Setup Video modes and other stuff, then turn on the screen
@@ -161,7 +203,7 @@ SetupVideo:
     lda #$01
     sta $2105           ; Set Video mode 0, 8x8 tiles, 4 color BG1/BG2/BG3/BG4
 
-    lda #$40            ; Set BG1's Tile Map offset to $4000 (Word address)
+    lda #$60            ; Set BG1's Tile Map offset to $6000 (Word address)
     sta $2107           ; And the Tile Map size to 32x32
 
     stz $210B           ; Set BG1's Character VRAM offset to $0000 (word address)
